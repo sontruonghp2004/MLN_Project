@@ -1,228 +1,366 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { TimelineEvent } from '../types/timeline'
+import { HeroHeader } from './header'
+import TheoryContent from './TheoryContent'
+import TimelineEventDetail from './TimelineEventDetail'
+import Modal from './ui/modal'
 
-interface TheoryTopic {
-  id: string;
-  title: string;
-  titleEn: string;
-  content: string[];
-  keyPoints: string[];
-}
+// Timeline data về lịch sử phát triển học thuyết kinh tế chính trị
+const timelineEvents: TimelineEvent[] = [
+    {
+        id: 1,
+        year: '1776',
+        title: 'Adam Smith - Cha Đẻ Kinh Tế Học',
+        description:
+            "Xuất bản 'Của Cải Các Quốc Gia' - nền tảng kinh tế học cổ điển và lý thuyết giá trị lao động.",
+        image: '/assets/images/aicap.jpg',
+        detailContent: {
+            context:
+                "Adam Smith (1723-1790), triết gia Scotland, xuất bản tác phẩm 'An Inquiry into the Nature and Causes of the Wealth of Nations'. Đây là tác phẩm tiên phong về kinh tế học cổ điển.",
+            significance:
+                "Smith đưa ra THUYẾT GIÁ TRỊ LAO ĐỘNG sơ khai: Giá trị hàng hóa được quyết định bởi lao động. Ông cũng phát triển khái niệm 'bàn tay vô hình' (invisible hand) - thị trường tự điều tiết qua cạnh tranh.",
+            keyFigures: ['Adam Smith'],
+            outcomes: [
+                'Thiết lập nền tảng cho kinh tế học cổ điển',
+                'Khái niệm phân công lao động và năng suất',
+                'Lý thuyết giá trị lao động (chưa hoàn chỉnh)',
+                'Bảo vệ tự do thương mại và chống can thiệp nhà nước'
+            ],
+            historicalContext:
+                'Cuộc Cách mạng Công nghiệp bắt đầu ở Anh, kinh tế hàng hóa phát triển mạnh. Smith phản ánh nhu cầu của giai cấp tư sản mới nổi - chống lại chế độ phong kiến và trọng thương.'
+        }
+    },
+    {
+        id: 2,
+        year: '1817',
+        title: 'David Ricardo - Hoàn thiện Giá Trị Lao Động',
+        description: 'Ricardo phát triển lý thuyết giá trị lao động và đưa ra thuyết địa tô vi sai.',
+        image: '/assets/images/viet-mien-lao.jpg',
+        detailContent: {
+            context:
+                "David Ricardo (1772-1823), nhà kinh tế học người Anh, xuất bản 'Principles of Political Economy and Taxation' (Nguyên lý Kinh tế Chính trị và Đánh thuế).",
+            significance:
+                'Ricardo HOÀN THIỆN lý thuyết giá trị lao động của Smith: Giá trị hàng hóa được quyết định bởi LƯỢNG LAO ĐỘNG XÃ HỘI CẦN THIẾT. Ông cũng phát triển thuyết ĐỊA TÔ VI SAI - giải thích nguồn gốc thu nhập của địa chủ.',
+            keyFigures: ['David Ricardo'],
+            outcomes: [
+                'Lý thuyết giá trị lao động xã hội cần thiết',
+                'Thuyết địa tô vi sai',
+                'Thuyết lợi thế so sánh trong thương mại quốc tế',
+                'Phân tích phân phối thu nhập giữa các giai cấp'
+            ],
+            historicalContext:
+                "Anh trở thành 'xưởng của thế giới', xung đột giữa tư sản công nghiệp và địa chủ phong kiến ngày càng gay gắt. Ricardo đại diện cho lợi ích của tư sản công nghiệp."
+        }
+    },
+    {
+        id: 3,
+        year: '1848',
+        title: 'Karl Marx & Engels - Tuyên Ngôn Cộng Sản',
+        description: "Xuất bản 'Tuyên Ngôn Đảng Cộng Sản' - khai sinh chủ nghĩa xã hội khoa học.",
+        image: '/assets/images/Poland.jpg',
+        detailContent: {
+            context:
+                "Karl Marx (1818-1883) và Friedrich Engels (1820-1895) xuất bản 'Tuyên ngôn của Đảng Cộng sản' vào năm 1848, trong bối cảnh các cuộc cách mạng tư sản cuồn cuộn châu Âu.",
+            significance:
+                "Đây là tác phẩm KHAI SINH CHỦ NGHĨA XÃ HỘI KHOA HỌC. Vạch rõ mâu thuẫn giai cấp giữa tư sản và vô sản, dự báo sự sụp đổ tất yếu của CNTB và thắng lợi của XHCN. Khẩu hiệu nổi tiếng: 'Vô sản toàn thế giới, đoàn kết lại!'",
+            keyFigures: ['Karl Marx', 'Friedrich Engels'],
+            outcomes: [
+                'Khái niệm đấu tranh giai cấp là động lực lịch sử',
+                'Phê phán CNTB và chủ nghĩa xã hội không tưởng',
+                'Đề ra sứ mệnh lịch sử của giai cấp công nhân',
+                'Nền tảng lý luận cho phong trào công nhân quốc tế'
+            ],
+            historicalContext:
+                'Cách mạng công nghiệp tạo ra giai cấp công nhân đông đảo sống trong nghèo khổ. Chủ nghĩa xã hội không tưởng (Owen, Fourier, Saint-Simon) tỏ ra bất lực. Cần một lý luận khoa học để lãnh đạo đấu tranh.'
+        }
+    },
+    {
+        id: 4,
+        year: '1867',
+        title: "Tư Bản - Kinh thánh của Kinh Tế Chính Trị",
+        description: "Xuất bản Tập I 'Tư Bản' (Das Kapital) - tác phẩm vĩ đại của Marx về kinh tế chính trị.",
+        image: '/assets/images/20121960.jpg',
+        detailContent: {
+            context:
+                "Sau gần 20 năm nghiên cứu tại Thư viện Bảo tàng Anh (British Museum), Marx hoàn thành và xuất bản Tập I của 'Tư Bản' năm 1867. Đây là tác phẩm chính trị kinh tế vĩ đại nhất thế kỷ 19.",
+            significance:
+                'Marx VẠCH TRẦN bí mật của lợi nhuận tư bản: GIÁ TRỊ THẶNG DƯ - lao động không công của công nhân. Ông phân tích toàn diện quá trình sản xuất tư bản chủ nghĩa, các quy luật vận động và mâu thuẫn cơ bản của CNTB.',
+            keyFigures: ['Karl Marx'],
+            outcomes: [
+                'Học thuyết giá trị thặng dư - vũ khí lý luận sắc bén',
+                'Tính hai mặt của lao động (cụ thể - trừu tượng)',
+                'Tư bản bất biến và khả biến (c và v)',
+                'Quy luật tích lũy tư bản và khủng hoảng chu kỳ',
+                'Dự báo sự sụp đổ tất yếu của CNTB'
+            ],
+            historicalContext:
+                'CNTB đang phát triển mạnh mẽ nhưng đầy mâu thuẫn: Khủng hoảng 1857, phong trào công nhân tăng cường. Tư Bản cung cấp vũ khí lý luận để đấu tranh chống bóc lột.'
+        }
+    },
+    {
+        id: 5,
+        year: '1885-1894',
+        title: "Engels hoàn thiện 'Tư Bản'",
+        description: "Engels biên tập và xuất bản Tập II (1885) và Tập III (1894) của 'Tư Bản' từ bản thảo Marx.",
+        image: '/assets/images/aicap.jpg',
+        detailContent: {
+            context:
+                "Sau khi Marx mất (1883), Friedrich Engels dành 11 năm để chỉnh lý và xuất bản 2 tập còn lại của 'Tư Bản' từ các bản thảo chưa hoàn chỉnh của Marx.",
+            significance:
+                "Tập II phân tích QUÁ TRÌNH LƯU THÔNG tư bản (T-H...SX...H'-T'), tái sản xuất xã hội. Tập III phân tích QUÁ TRÌNH TOÀN BỘ sản xuất tư bản chủ nghĩa: biến đổi giá trị thặng dư thành lợi nhuận, lợi tức, địa tô; quy luật tỷ suất lợi suất giảm dần.",
+            keyFigures: ['Friedrich Engels', 'Karl Marx'],
+            outcomes: [
+                'Hoàn thiện hệ thống lý luận Kinh tế chính trị Mác',
+                'Lý thuyết tái sản xuất xã hội (giản đơn và mở rộng)',
+                'Biến đổi giá trị thành giá cả sản xuất',
+                'Quy luật tỷ suất lợi nhuận có xu hướng giảm dần'
+            ],
+            historicalContext:
+                'CNTB bước vào giai đoạn đế quốc (độc quyền), xung đột giai cấp gay gắt. Lý luận Marx được phổ biến rộng rãi trong phong trào công nhân thế giới.'
+        }
+    },
+    {
+        id: 6,
+        year: '1916',
+        title: 'Lenin - Chủ Nghĩa Đế Quốc',
+        description: "Lenin xuất bản 'Chủ nghĩa đế quốc, giai đoạn cao nhất của chủ nghĩa tư bản'.",
+        image: '/assets/images/viet-mien-lao.jpg',
+        detailContent: {
+            context:
+                'Vladimir Lenin (1870-1924) nghiên cứu sự phát triển của CNTB từ tự do cạnh tranh sang ĐỘC QUYỀN. Ông xuất bản tác phẩm này năm 1916, giữa Thế chiến I.',
+            significance:
+                'Lenin chỉ ra CHỦNGHĨA ĐẾ QUỐC là giai đoạn cao nhất và cuối cùng của CNTB, có 5 đặc điểm cơ bản: độc quyền, tư bản tài chính, xuất khẩu tư bản, chia chác thế giới, chiến tranh đế quốc. Đây là sự phát triển sáng tạo của chủ nghĩa Mác trong điều kiện mới.',
+            keyFigures: ['Vladimir Lenin'],
+            outcomes: [
+                'Lý luận về giai đoạn đế quốc của CNTB',
+                '5 đặc điểm cơ bản của chủ nghĩa đế quốc',
+                'Mâu thuẫn giữa các nước đế quốc dẫn đến chiến tranh',
+                'Khả năng cách mạng XHCN thắng lợi ở một nước'
+            ],
+            historicalContext:
+                'Thế chiến I bùng nổ (1914-1918) - hệ quả của mâu thuẫn đế quốc. Khủng hoảng của CNTB sâu sắc, tạo điều kiện cho cách mạng xã hội chủ nghĩa.'
+        }
+    },
+    {
+        id: 7,
+        year: '1917',
+        title: 'Cách Mạng Tháng Mười Nga - Lần Đầu Áp Dụng',
+        description: 'Cách mạng Xã hội chủ nghĩa Nga thành công, xây dựng nhà nước xã hội chủ nghĩa đầu tiên.',
+        image: '/assets/images/Poland.jpg',
+        detailContent: {
+            context:
+                "Dưới sự lãnh đạo của Đảng Bônsêvích và Lenin, Cách mạng Tháng Mười Nga (7/11/1917) lật đổ chính quyền tư sản lâm thời, thiết lập chính quyền công nông (Xô-viết).",
+            significance:
+                'Đây là LẦN ĐẦU TIÊN trong lịch sử, lý luận Mác về XHCN được biến thành HIỆN THỰC. Nước Nga Xô-viết trở thành căn cứ cách mạng thế giới, truyền cảm hứng cho phong trào công nhân và dân tộc bị áp bức toàn cầu.',
+            keyFigures: ['Vladimir Lenin', 'Leon Trotsky', 'Joseph Stalin'],
+            outcomes: [
+                'Thiết lập nhà nước xã hội chủ nghĩa đầu tiên',
+                'Quốc hữu hóa tư liệu sản xuất',
+                'Thực hiện kinh tế kế hoạch hóa',
+                'Chứng minh tính khả thi của XHCN'
+            ],
+            historicalContext:
+                'Nga kiệt quệ sau Thế chiến I, mâu thuẫn xã hội gay gắt. Đây là khâu yếu nhất của chuỗi đế quốc, tạo điều kiện cho cách mạng XHCN thắng lợi.'
+        }
+    },
+    {
+        id: 8,
+        year: '1930-1960',
+        title: 'Kinh Tế Chính Trị XHCN - Liên Xô và Trung Quốc',
+        description: 'Phát triển lý luận kinh tế chính trị xã hội chủ nghĩa trong quá trình xây dựng CNXH.',
+        image: '/assets/images/20121960.jpg',
+        detailContent: {
+            context:
+                'Liên Xô (1922-1991) và Trung Quốc (từ 1949) xây dựng chế độ XHCN, tạo ra hệ thống lý luận Kinh tế chính trị XHCN. Các nhà lý luận Xô-viết và Trung Quốc phát triển lý thuyết về kinh tế kế hoạch hóa, chế độ công hữu, phân phối theo lao động.',
+            significance:
+                'Kinh tế chính trị XHCN nghiên cứu các QUY LUẬT KINH TẾ của chế độ XHCN: quy luật ưu tiên phát triển sản xuất tư liệu, quy luật phân phối theo lao động, quy luật kế hoạch hóa. Đây là sự mở rộng của Kinh tế chính trị Mác-Lênin sang lĩnh vực mới.',
+            keyFigures: ['Joseph Stalin', 'Mao Trạch Đông', 'Các nhà kinh tế Xô-viết'],
+            outcomes: [
+                'Lý luận về kinh tế kế hoạch hóa tập trung',
+                'Chế độ công hữu về tư liệu sản xuất',
+                'Phân phối theo lao động',
+                'Mô hình công nghiệp hóa xã hội chủ nghĩa'
+            ],
+            historicalContext:
+                'Liên Xô công nghiệp hóa nhanh (5 năm kế hoạch), trở thành cường quốc. Trung Quốc cải cạo xã hội chủ nghĩa. Hệ thống XHCN thế giới hình thành (1/3 dân số).'
+        }
+    },
+    {
+        id: 9,
+        year: '1986-Nay',
+        title: 'Kinh Tế Thị Trường Định Hướng XHCN',
+        description: 'Việt Nam và Trung Quốc phát triển mô hình kinh tế thị trường định hướng xã hội chủ nghĩa.',
+        image: '/assets/images/aicap.jpg',
+        detailContent: {
+            context:
+                'Sau Đổi Mới 1986 (Việt Nam) và Cải Cách Mở Cửa 1978 (Trung Quốc), các nước XHCN chuyển từ kinh tế kế hoạch hóa tập trung sang KINH TẾ THỊ TRƯỜNG ĐỊNH HƯỚNG XÃ HỘI CHỦ NGHĨA.',
+            significance:
+                'Đây là sự PHÁT TRIỂN SÁNG TẠO của chủ nghĩa Mác-Lênin: Kết hợp cơ chế thị trường (điều tiết vi mô) với định hướng XHCN (công hữu làm chủ, nhà nước điều tiết vĩ mô, công bằng xã hội). Trung Quốc trở thành nền kinh tế lớn thứ 2 thế giới.',
+            keyFigures: ['Đặng Tiểu Bình', 'Đảng Cộng sản Việt Nam'],
+            outcomes: [
+                'Kinh tế nhiều thành phần, nhiều hình thức sở hữu',
+                'Kết hợp kinh tế thị trường với định hướng XHCN',
+                'Tăng trưởng nhanh, thoát nghèo hàng trăm triệu người',
+                'Hội nhập quốc tế sâu rộng'
+            ],
+            historicalContext:
+                'Khủng hoảng kinh tế kế hoạch hóa cứng nhắc thập niên 1970-80. Toàn cầu hóa và cách mạng công nghệ thông tin. Cần mô hình mới vừa phát triển, vừa giữ định hướng XHCN.'
+        }
+    },
+    {
+        id: 10,
+        year: 'Hiện Đại',
+        title: 'Kinh Tế Chính Trị Trong Thế Kỷ 21',
+        description: 'Ứng dụng Kinh tế chính trị Mác-Lênin để phân tích tư bản chủ nghĩa hiện đại và xu hướng toàn cầu.',
+        image: '/assets/images/viet-mien-lao.jpg',
+        detailContent: {
+            context:
+                'Thế kỷ 21: Toàn cầu hóa, cách mạng công nghiệp 4.0, khủng hoảng tài chính 2008, đại dịch COVID-19, biến đổi khí hậu. Các mâu thuẫn của CNTB ngày càng sâu sắc: bất bình đẳng tăng, khủng hoảng môi trường, khủng hoảng kinh tế chu kỳ.',
+            significance:
+                'Kinh tế chính trị Mác-Lênin VẪN CÒN NGUYÊN GIÁ TRỊ để phân tích: (1) Bóc lột lao động trong kinh tế số (gig economy), (2) Độc quyền của các tập đoàn công nghệ (Big Tech), (3) Khủng hoảng thừa thãi và thất nghiệp công nghệ, (4) Mâu thuẫn giữa phát triển và môi trường.',
+            keyFigures: ['Các nhà kinh tế Mác chủ nghĩa hiện đại', 'Thomas Piketty', 'David Harvey'],
+            outcomes: [
+                'Phân tích tư bản chủ nghĩa số (digital capitalism)',
+                'Nghiên cứu bất bình đẳng toàn cầu (Piketty: r > g)',
+                'Kinh tế chính trị môi trường và biến đổi khí hậu',
+                'Lý thuyết về chủ nghĩa xã hội thế kỷ 21'
+            ],
+            historicalContext:
+                'CNTB hiện đại: tài chính hóa, độc quyền công nghệ, toàn cầu hóa. Mâu thuẫn ngày càng gay gắt, nhưng XHCN chưa thắng lợi toàn cầu. Cần tiếp tục phát triển lý luận và thực tiễn.'
+        }
+    }
+]
 
-const theoryTopics: TheoryTopic[] = [
-  {
-    id: 'hanghoa',
-    title: 'Hàng Hóa và Giá Trị',
-    titleEn: 'Commodities and Value',
-    content: [
-      'Hàng hóa là sản phẩm lao động được sản xuất ra để trao đổi, mua bán. Hàng hóa có hai thuộc tính cơ bản: giá trị sử dụng và giá trị.',
-      'Giá trị sử dụng là tính hữu ích của hàng hóa, khả năng thỏa mãn nhu cầu nào đó của con người. Giá trị sử dụng là nội dung vật chất của sự giàu có.',
-      'Giá trị là lao động xã hội kết tinh trong hàng hóa. Giá trị được đo bằng thời gian lao động xã hội cần thiết để sản xuất ra hàng hóa đó.',
-      'Lao động sản xuất hàng hóa có tính hai mặt: lao động cụ thể và lao động trừu tượng. Lao động cụ thể tạo ra giá trị sử dụng, lao động trừu tượng tạo ra giá trị.'
-    ],
-    keyPoints: [
-      'Hàng hóa = Giá trị sử dụng + Giá trị',
-      'Giá trị được xác định bởi lao động xã hội cần thiết',
-      'Lao động cụ thể ≠ Lao động trừu tượng',
-      'Giá trị là cơ sở của giá cả'
-    ]
-  },
-  {
-    id: 'tiente',
-    title: 'Tiền Tệ và Chức Năng',
-    titleEn: 'Currency and Functions',
-    content: [
-      'Tiền tệ là hàng hóa đặc biệt, được tách ra khỏi thế giới hàng hóa để làm vật ngang giá chung. Tiền tệ là sản phẩm tất yếu của sự phát triển sản xuất hàng hóa và trao đổi hàng hóa.',
-      'Bản chất của tiền tệ là biểu hiện quan hệ sản xuất giữa những người sản xuất hàng hóa thông qua vật.',
-      'Tiền tệ có 5 chức năng cơ bản: thước đo giá trị, phương tiện lưu thông, phương tiện tích trữ, phương tiện thanh toán, và tiền tệ thế giới.',
-      'Trong nền kinh tế hiện đại, tiền tệ phát triển thành tiền giấy, tiền tín dụng và tiền điện tử, nhưng bản chất vẫn là biểu hiện quan hệ xã hội.'
-    ],
-    keyPoints: [
-      'Tiền tệ = Hàng hóa đặc biệt làm vật ngang giá chung',
-      '5 chức năng: Đo lường, Lưu thông, Tích trữ, Thanh toán, Thế giới',
-      'Tiền tệ biểu hiện quan hệ sản xuất xã hội',
-      'Hình thái tiền tệ phát triển theo thời gian'
-    ]
-  },
-  {
-    id: 'thitruong',
-    title: 'Thị Trường và Cơ Chế Thị Trường',
-    titleEn: 'Market and Market Mechanism',
-    content: [
-      'Thị trường là nơi diễn ra các quan hệ trao đổi, mua bán hàng hóa giữa người mua và người bán. Thị trường bao gồm cả không gian vật chất và quan hệ kinh tế.',
-      'Cơ chế thị trường là sự tác động qua lại giữa các yếu tố cơ bản: cung, cầu và giá cả. Cung cầu quyết định giá cả, và giá cả điều tiết cung cầu.',
-      'Thị trường có nhiều loại: thị trường hàng hóa dịch vụ, thị trường lao động, thị trường vốn, thị trường bất động sản, và các thị trường khác.',
-      'Vai trò của thị trường: phân bổ nguồn lực, thúc đẩy cạnh tranh, điều tiết sản xuất kinh doanh, tạo động lực phát triển kinh tế.'
-    ],
-    keyPoints: [
-      'Thị trường = Nơi diễn ra trao đổi mua bán',
-      'Cơ chế: Cung ⇄ Cầu ⇄ Giá cả',
-      'Nhiều loại thị trường khác nhau',
-      'Phân bổ nguồn lực và thúc đẩy phát triển'
-    ]
-  },
-  {
-    id: 'quyluatkinhte',
-    title: 'Quy Luật Kinh Tế của Sản Xuất Hàng Hóa',
-    titleEn: 'Economic Laws of Commodity Production',
-    content: [
-      'Quy luật giá trị: Hàng hóa trao đổi theo nguyên tắc có đổi có, bằng giá trị với bằng giá trị. Cơ sở của quy luật là lao động xã hội cần thiết.',
-      'Quy luật cung cầu: Mối quan hệ giữa cung và cầu quyết định giá cả thị trường. Khi cầu lớn hơn cung, giá tăng; khi cung lớn hơn cầu, giá giảm.',
-      'Quy luật cạnh tranh: Các nhà sản xuất hàng hóa cạnh tranh với nhau để giành thị trường. Cạnh tranh thúc đẩy cải tiến kỹ thuật, nâng cao năng suất lao động.',
-      'Những quy luật này tác động khách quan, không phụ thuộc vào ý chí con người. Nhận thức và vận dụng đúng các quy luật sẽ đạt hiệu quả kinh tế cao.'
-    ],
-    keyPoints: [
-      'Quy luật giá trị: Trao đổi theo giá trị lao động',
-      'Quy luật cung cầu: Điều tiết giá cả thị trường',
-      'Quy luật cạnh tranh: Thúc đẩy cải tiến',
-      'Các quy luật tác động khách quan'
-    ]
-  },
-  {
-    id: 'giatrithanhdư',
-    title: 'Giá Trị Thặng Dư',
-    titleEn: 'Surplus Value',
-    content: [
-      'Giá trị thặng dư là phần giá trị mới do công nhân làm thuê tạo ra vượt quá giá trị sức lao động của họ mà bị nhà tư bản chiếm đoạt không công.',
-      'Công thức: M = C + V + M, trong đó C là tư bản bất biến, V là tư bản khả biến, M là giá trị thặng dư.',
-      'Có hai hình thức tăng giá trị thặng dư: giá trị thặng dư tuyệt đối (kéo dài thời gian lao động) và giá trị thặng dư tương đối (tăng năng suất lao động).',
-      'Trong nền kinh tế thị trường định hướng xã hội chủ nghĩa, cần điều tiết hợp lý lợi nhuận, đảm bảo quyền lợi người lao động, phân phối công bằng.'
-    ],
-    keyPoints: [
-      'Giá trị thặng dư = Giá trị mới - Giá trị sức lao động',
-      'M = C + V + M',
-      'Hai loại: Tuyệt đối và Tương đối',
-      'Cần phân phối công bằng trong CNXH'
-    ]
-  },
-  {
-    id: 'ungdung',
-    title: 'Ứng Dụng Vào Thực Tiễn Việt Nam',
-    titleEn: 'Application to Vietnam Context',
-    content: [
-      'Việt Nam xây dựng nền kinh tế thị trường định hướng xã hội chủ nghĩa, kết hợp kinh tế thị trường với chủ nghĩa xã hội.',
-      'Nhà nước đóng vai trò định hướng, điều tiết vĩ mô, tạo môi trường pháp lý, đảm bảo công bằng xã hội và bảo vệ môi trường.',
-      'Phát triển đa dạng các thành phần kinh tế: kinh tế nhà nước, kinh tế tập thể, kinh tế tư nhân, kinh tế có vốn đầu tư nước ngoài.',
-      'Mục tiêu: Dân giàu, nước mạnh, dân chủ, công bằng, văn minh. Phát triển kinh tế gắn với tiến bộ và công bằng xã hội, bảo vệ môi trường.'
-    ],
-    keyPoints: [
-      'KTTT định hướng XHCN',
-      'Nhà nước định hướng và điều tiết',
-      'Đa dạng thành phần kinh tế',
-      'Mục tiêu: Giàu - Mạnh - Dân chủ - Công bằng'
-    ]
-  }
-];
+export default function TimelinePage() {
+    const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [activeTab, setActiveTab] = useState<'theory' | 'timeline'>('theory')
+    const [highlightTopicId, setHighlightTopicId] = useState<string | null>(null)
 
-function TheorySection() {
-  const [expandedTopic, setExpandedTopic] = useState<string | null>(theoryTopics[0].id);
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
 
-  const toggleTopic = (id: string) => {
-    setExpandedTopic(expandedTopic === id ? null : id);
-  };
+    // Map certain timeline events to theory topic ids (best-effort)
+    const timelineToTopicMap: Record<number, string> = {
+        1: 'hanghoa',
+        2: 'quyluatkinhte',
+        3: 'giatrithanhdư',
+        4: 'giatrithanhdư',
+        5: 'giatrithanhdư',
+        6: 'thitruong',
+        7: 'thitruong',
+        8: 'ungdung',
+        9: 'ungdung',
+        10: 'quyluatkinhte'
+    }
 
-  return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-600">
-        <div className="flex items-start space-x-4">
-          <BookOpen className="w-8 h-8 text-red-600 flex-shrink-0 mt-1" />
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Lý Thuyết Kinh Tế Chính Trị Mác - Lênin
-            </h2>
-            <p className="text-gray-600 leading-relaxed">
-              Trang bị kiến thức cốt lõi về hàng hóa, tiền tệ, thị trường, các quy luật kinh tế
-              và giá trị thặng dư. Củng cố niềm tin vào chủ trương đường lối của Đảng, chính sách
-              pháp luật của Nhà nước, phát triển tư duy phản biện và kỹ năng ứng dụng thực tiễn.
-            </p>
-          </div>
-        </div>
-      </div>
+    const openModal = (event: TimelineEvent) => {
+        const mapped = timelineToTopicMap[event.id]
+        if (mapped) {
+            // switch to theory tab and highlight topic
+            setActiveTab('theory')
+            setHighlightTopicId(mapped)
+            // clear modal state
+            setSelectedEvent(null)
+            setIsModalOpen(false)
+            return
+        }
 
-      <div className="space-y-4">
-        {theoryTopics.map((topic) => (
-          <div
-            key={topic.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl"
-          >
-            <button
-              onClick={() => toggleTopic(topic.id)}
-              className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
-            >
-              <div>
-                <h3 className="text-lg font-bold text-gray-800">{topic.title}</h3>
-                <p className="text-sm text-gray-500 mt-1">{topic.titleEn}</p>
-              </div>
-              {expandedTopic === topic.id ? (
-                <ChevronUp className="w-6 h-6 text-red-600 flex-shrink-0" />
-              ) : (
-                <ChevronDown className="w-6 h-6 text-gray-400 flex-shrink-0" />
-              )}
-            </button>
+        setSelectedEvent(event)
+        setIsModalOpen(true)
+    }
 
-            {expandedTopic === topic.id && (
-              <div className="px-5 pb-5 pt-2 border-t border-gray-100">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-700 mb-3">Nội dung chi tiết:</h4>
-                    <div className="space-y-3">
-                      {topic.content.map((paragraph, index) => (
-                        <p key={index} className="text-gray-600 leading-relaxed pl-4 border-l-2 border-red-200">
-                          {paragraph}
-                        </p>
-                      ))}
+        const closeModal = () => {
+                setIsModalOpen(false)
+                setTimeout(() => setSelectedEvent(null), 300)
+        }
+
+    const pageBgClass = activeTab === 'theory'
+        ? 'min-h-screen bg-gradient-to-br from-white/80 to-yellow-50'
+        : 'min-h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900'
+
+    return (
+        <div className={pageBgClass}>
+            <HeroHeader />
+
+            <div className="container mx-auto px-4 py-12">
+                <div className="flex justify-center mb-8">
+                    <div className="bg-white rounded-full p-1 flex items-center">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('theory')}
+                            className={`px-6 py-3 rounded-full font-semibold ${activeTab === 'theory' ? 'bg-indigo-600 text-white' : 'text-indigo-600'}`}
+                        >
+                            Lý Thuyết
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('timeline')}
+                            className={`ml-2 px-6 py-3 rounded-full font-semibold ${activeTab === 'timeline' ? 'bg-indigo-600 text-white' : 'text-indigo-600'}`}
+                        >
+                            Dòng Thời Gian
+                        </button>
                     </div>
-                  </div>
-
-                  <div className="bg-red-50 rounded-lg p-4 mt-4">
-                    <h4 className="font-semibold text-red-800 mb-3">Điểm chính cần nhớ:</h4>
-                    <ul className="space-y-2">
-                      {topic.keyPoints.map((point, index) => (
-                        <li key={index} className="flex items-start space-x-2">
-                          <span className="text-red-600 font-bold flex-shrink-0">•</span>
-                          <span className="text-gray-700">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
 
-      <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl shadow-lg p-6 text-white">
-        <h3 className="text-xl font-bold mb-3">Mục Tiêu Học Tập</h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="bg-white bg-opacity-10 rounded-lg p-4">
-            <h4 className="font-semibold mb-2">Kiến thức</h4>
-            <p className="text-sm text-red-50">
-              Hiểu sâu về hàng hóa, tiền tệ, thị trường, quy luật kinh tế và giá trị thặng dư
-            </p>
-          </div>
-          <div className="bg-white bg-opacity-10 rounded-lg p-4">
-            <h4 className="font-semibold mb-2">Kỹ năng</h4>
-            <p className="text-sm text-red-50">
-              Tư duy phản biện, lập luận, thuyết trình, ứng dụng AI, làm việc nhóm
-            </p>
-          </div>
-          <div className="bg-white bg-opacity-10 rounded-lg p-4">
-            <h4 className="font-semibold mb-2">Thái độ</h4>
-            <p className="text-sm text-red-50">
-              Củng cố niềm tin vào Đảng, Nhà nước, tinh thần trách nhiệm xã hội
-            </p>
-          </div>
-          <div className="bg-white bg-opacity-10 rounded-lg p-4">
-            <h4 className="font-semibold mb-2">Ứng dụng</h4>
-            <p className="text-sm text-red-50">
-              Vận dụng vào thực tiễn phát triển kinh tế - xã hội Việt Nam
-            </p>
-          </div>
+                {activeTab === 'theory' ? (
+                    // Theory view: TheoryContent handles its own full-width background; render directly so background covers viewport
+                    <div>
+                        <TheoryContent highlightTopicId={highlightTopicId} />
+                    </div>
+                ) : (
+                    <div className="relative">
+                        {/* Vertical timeline line */}
+                        <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-indigo-500 via-purple-500 to-indigo-500 opacity-30"></div>
+
+                        {/* Timeline events */}
+                        <div className="space-y-24">
+                            {timelineEvents.map((event, index) => (
+                                <div
+                                    key={event.id}
+                                    className={`relative flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+                                >
+                                    {/* Event card */}
+                                    <div className={`w-5/12 ${index % 2 === 0 ? 'pr-12 text-right' : 'pl-12 text-left'}`}>
+                                        <button
+                                            type="button"
+                                            onClick={() => openModal(event)}
+                                            className="w-full bg-gradient-to-br from-slate-800/90 to-indigo-900/90 backdrop-blur-sm rounded-lg p-6 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer border border-indigo-500/20 hover:border-indigo-400/40 text-left"
+                                        >
+                                            <div className="mb-4">
+                                                <span className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                                                    {event.year}
+                                                </span>
+                                            </div>
+                                            <h3 className="text-2xl font-bold text-white mb-3">{event.title}</h3>
+                                            <p className="text-indigo-200 mb-4">{event.description}</p>
+                                            <div className="inline-flex items-center text-indigo-300 hover:text-indigo-100 transition-colors">
+                                                <span className="mr-2">Xem Chi Tiết</span>
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    </div>
+
+                                    {/* Center dot */}
+                                    <div className="absolute left-1/2 transform -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full border-4 border-slate-900 z-10 shadow-lg"></div>
+
+                                    {/* Image (optional, can be placeholder) */}
+                                    <div className="w-5/12"></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Modal for event details */}
+            <Modal isOpen={isModalOpen} onClose={closeModal} title={selectedEvent?.title || ''}>
+                {selectedEvent && <TimelineEventDetail event={selectedEvent} />}
+            </Modal>
         </div>
-      </div>
-    </div>
-  );
+    )
 }
 
-export default TheorySection;
