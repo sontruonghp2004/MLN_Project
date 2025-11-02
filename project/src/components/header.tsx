@@ -1,10 +1,98 @@
-export function HeroHeader() {
-  return (
-    <header className="py-12 bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-4xl font-extrabold text-white">Lý Thuyết & Lịch Sử</h2>
-        <p className="text-indigo-200 mt-2">Hành trình phát triển học thuyết kinh tế chính trị</p>
-      </div>
-    </header>
-  );
-}
+import { Menu, X } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Logo } from './logo';
+
+// Custom navigation link component that handles both router and anchor links
+const NavLink = ({ href, children, className, ...props }: {
+    href: string;
+    children: React.ReactNode;
+    className?: string;
+    'aria-label'?: string;
+}) => {
+    // Use a standard anchor tag for links that are internal page anchors (starting with # or /#).
+    // This ensures the browser handles scrolling to the element correctly, even from other pages.
+    if (href.startsWith('#') || href.startsWith('/#')) {
+        return (
+            <a href={href} className={className} {...props}>
+                {children}
+            </a>
+        );
+    }
+    return (
+        <Link to={href} className={className} {...props}>
+            {children}
+        </Link>
+    );
+};
+
+// Menu items cho nền tảng học tập Kinh tế chính trị
+const menuItems = [
+    { name: 'Các Chương Học', href: '/game' },
+    { name: 'Dòng Thời Gian', href: '/timeline' },
+    { name: 'Nội Dung Chi Tiết', href: '/presentations' },
+    { name: 'Tìm Hiểu Thêm', href: '/#about' },
+    { name: 'Công Bố AI', href: '/ai-disclosure' },
+];
+
+export const HeroHeader = () => {
+    const [menuState, setMenuState] = React.useState(false);
+    return (
+        <header>
+            <nav
+                data-state={menuState ? 'active' : ''}
+                className="bg-background/50 fixed z-20 w-full border-b backdrop-blur-3xl">
+                <div className="mx-auto max-w-6xl px-6 transition-all duration-300">
+                    <div className="relative flex items-center justify-between py-3 lg:py-4">
+                        <div className="flex items-center">
+                            <Link
+                                to="/"
+                                aria-label="home"
+                                className="flex items-center space-x-2">
+                                <Logo />
+                            </Link>
+                        </div>
+
+                        <button
+                            onClick={() => setMenuState(!menuState)}
+                            aria-label={menuState ? 'Close Menu' : 'Open Menu'}
+                            className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
+                            <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
+                            <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
+                        </button>
+
+                        <div className="hidden lg:block ml-auto">
+                            <ul className="flex gap-8 text-sm">
+                                {menuItems.map((item, index) => (
+                                    <li key={index}>
+                                        <NavLink
+                                            href={item.href}
+                                            className="text-muted-foreground hover:text-accent-foreground block duration-150">
+                                            <span>{item.name}</span>
+                                        </NavLink>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className={`bg-background lg:flex mb-6 w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent ${menuState ? 'block' : 'hidden'}`}>
+                            <div className="lg:hidden">
+                                <ul className="space-y-6 text-base">
+                                    {menuItems.map((item, index) => (
+                                        <li key={index}>
+                                            <NavLink
+                                                href={item.href}
+                                                className="text-muted-foreground hover:text-accent-foreground block duration-150">
+                                                <span>{item.name}</span>
+                                            </NavLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    );
+};

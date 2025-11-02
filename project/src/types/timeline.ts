@@ -1,16 +1,15 @@
-export interface TimelineDetailContent {
-  context: string;
-  significance: string;
-  keyFigures: string[];
-  outcomes: string[];
-  historicalContext: string;
-}
-
+// src/types/timeline.ts
 export interface TimelineEvent {
   id: number;
   year: string;
   title: string;
   description: string;
   image: string;
-  detailContent: TimelineDetailContent;
+  detailContent: {
+    context: string;
+    significance: string;
+    keyFigures: string[];
+    outcomes: string[];
+    historicalContext: string;
+  };
 }

@@ -1,21 +1,25 @@
+// src/App.tsx
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import AppLayout from './components/AppLayout';
-import MiniGame from './components/MiniGame';
-import HomePage from './components/pages/HomePage';
-import TimelinePage from './components/TheorySection';
+import Layout from './components/Layout';
 
-function App() {
+// Import các trang
+import HeroSection from './components/HeroSection';
+import MiniGame from './components/MiniGame';
+import TimelinePage from './pages/TimelinePage';
+
+export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AppLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="timeline" element={<TimelinePage />} />
+        {/* Tất cả các route đều dùng Layout → Header luôn hiện */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<HeroSection />} />
           <Route path="game" element={<MiniGame />} />
+          <Route path="timeline" element={<TimelinePage />} />
+          {/* <Route path="presentations" element={<PresentationPage />} /> */}
+          {/* <Route path="ai-disclosure" element={<AIDisclosurePage />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;
