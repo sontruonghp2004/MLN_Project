@@ -1,3 +1,4 @@
+// components/HeroHeader.tsx
 import { Menu, X } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -10,8 +11,6 @@ const NavLink = ({ href, children, className, ...props }: {
     className?: string;
     'aria-label'?: string;
 }) => {
-    // Use a standard anchor tag for links that are internal page anchors (starting with # or /#).
-    // This ensures the browser handles scrolling to the element correctly, even from other pages.
     if (href.startsWith('#') || href.startsWith('/#')) {
         return (
             <a href={href} className={className} {...props}>
@@ -37,37 +36,50 @@ const menuItems = [
 
 export const HeroHeader = () => {
     const [menuState, setMenuState] = React.useState(false);
+
     return (
         <header>
             <nav
                 data-state={menuState ? 'active' : ''}
-                className="bg-background/50 fixed z-20 w-full border-b backdrop-blur-3xl">
-                <div className="mx-auto max-w-6xl px-6 transition-all duration-300">
-                    <div className="relative flex items-center justify-between py-3 lg:py-4">
+                className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-marx-red-light shadow-sm"
+            >
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="relative flex items-center justify-between py-4 lg:py-5">
+
+                        {/* Logo + Text */}
                         <div className="flex items-center">
-                            <Link
-                                to="/"
-                                aria-label="home"
-                                className="flex items-center space-x-2">
-                                <Logo />
+                            <Link to="/" aria-label="home" className="flex items-center group">
+                                <Logo className="mr-3 w-10 h-10 text-marx-red group-hover:text-marx-red-hover transition-colors" />
+                                <div className="hidden sm:block">
+                                    <div className="font-bold text-lg text-gray-900">Mác - Lênin Dễ Hiểu</div>
+                                    <div className="text-xs font-medium text-lenin-yellow">Học Mác vui như học meme</div>
+                                </div>
                             </Link>
                         </div>
 
+                        {/* Mobile Menu Button */}
                         <button
                             onClick={() => setMenuState(!menuState)}
                             aria-label={menuState ? 'Close Menu' : 'Open Menu'}
-                            className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
-                            <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
-                            <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
+                            className="relative z-20 block cursor-pointer p-2.5 lg:hidden"
+                        >
+                            <Menu
+                                className={`size-6 text-marx-red transition-all duration-200 ${menuState ? 'rotate-180 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'}`}
+                            />
+                            <X
+                                className={`absolute inset-0 m-auto size-6 text-marx-red transition-all duration-200 ${menuState ? 'rotate-0 scale-100 opacity-100' : '-rotate-180 scale-0 opacity-0'}`}
+                            />
                         </button>
 
+                        {/* Desktop Menu */}
                         <div className="hidden lg:block ml-auto">
-                            <ul className="flex gap-8 text-sm">
+                            <ul className="flex gap-8 text-sm font-semibold">
                                 {menuItems.map((item, index) => (
                                     <li key={index}>
                                         <NavLink
                                             href={item.href}
-                                            className="text-muted-foreground hover:text-accent-foreground block duration-150">
+                                            className="text-gray-700 hover:text-marx-red block duration-150 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-marx-red after:transition-all hover:after:w-full pb-1"
+                                        >
                                             <span>{item.name}</span>
                                         </NavLink>
                                     </li>
@@ -75,20 +87,25 @@ export const HeroHeader = () => {
                             </ul>
                         </div>
 
-                        <div className={`bg-background lg:flex mb-6 w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent ${menuState ? 'block' : 'hidden'}`}>
-                            <div className="lg:hidden">
-                                <ul className="space-y-6 text-base">
-                                    {menuItems.map((item, index) => (
-                                        <li key={index}>
-                                            <NavLink
-                                                href={item.href}
-                                                className="text-muted-foreground hover:text-accent-foreground block duration-150">
-                                                <span>{item.name}</span>
-                                            </NavLink>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                        {/* Mobile Menu Dropdown */}
+                        <div
+                            className={`absolute top-full left-0 right-0 mt-2 mx-4 bg-white rounded-3xl border border-marx-red-light p-6 shadow-2xl lg:hidden transition-all duration-300 ${
+                                menuState ? 'block opacity-100 translate-y-0' : 'hidden opacity-0 -translate-y-2'
+                            }`}
+                        >
+                            <ul className="space-y-6 text-base font-semibold">
+                                {menuItems.map((item, index) => (
+                                    <li key={index}>
+                                        <NavLink
+                                            href={item.href}
+                                            onClick={() => setMenuState(false)}
+                                            className="block text-gray-800 hover:text-marx-red transition-colors"
+                                        >
+                                            {item.name}
+                                        </NavLink>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
                     </div>
                 </div>

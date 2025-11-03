@@ -1,4 +1,4 @@
-// src/components/TimelinePage.tsx
+// pages/TimelinePage.tsx
 import { useEffect, useState } from 'react';
 import TimelineEventDetail from '../components/TimelineEventDetail';
 import Modal from '../components/ui/modal';
@@ -9,40 +9,37 @@ export default function TimelinePage() {
   const [selectedEvent, setSelectedEvent] = useState<TimelineEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Cuộn lên đầu trang khi vào
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Mở modal chi tiết sự kiện
   const openModal = (event: TimelineEvent) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
   };
 
-  // Đóng modal
   const closeModal = () => {
     setIsModalOpen(false);
     setTimeout(() => setSelectedEvent(null), 300);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
-      {/* Header tiêu đề trang */}
+    <div
+      className="min-h-screen bg-gradient-to-b from-white via-lenin-yellow-light to-white pt-20"
+    >
       <div className="container mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Dòng Thời Gian Kinh Tế Chính Trị Mác - Lênin
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Dòng Thời Gian Kinh Tế Chính Trị
+            <span className="block text-marx-red">Mác - Lênin</span>
           </h1>
-          <p className="text-indigo-200 text-lg">
+          <p className="text-gray-700 text-lg">
             Hành trình từ kinh tế học cổ điển đến chủ nghĩa xã hội khoa học
           </p>
         </div>
 
-        {/* Dòng thời gian */}
         <div className="relative">
-          {/* Đường thẳng dọc giữa */}
-          <div className="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-gradient-to-b from-indigo-500 via-purple-500 to-indigo-500 opacity-30" />
+          <div className="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-gradient-to-b from-marx-red via-lenin-yellow to-marx-red opacity-30" />
 
           <div className="space-y-24">
             {timelineEvents.map((event, index) => (
@@ -52,7 +49,6 @@ export default function TimelinePage() {
                   index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
                 }`}
               >
-                {/* Card sự kiện */}
                 <div
                   className={`w-5/12 ${
                     index % 2 === 0 ? 'pr-12 text-right' : 'pl-12 text-left'
@@ -61,21 +57,21 @@ export default function TimelinePage() {
                   <button
                     type="button"
                     onClick={() => openModal(event)}
-                    className="w-full bg-gradient-to-br from-slate-800/90 to-indigo-900/90 backdrop-blur-sm rounded-lg p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-indigo-500/20 hover:border-indigo-400/40 text-left"
+                    className="w-full bg-white rounded-lg p-6 shadow-md hover:shadow-xl transition-all duration-300 border border-marx-red-light hover:border-marx-red text-left"
                   >
                     <div className="mb-4">
-                      <span className="inline-block bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                      <span className="inline-block bg-gradient-to-r from-marx-red to-lenin-yellow text-white px-4 py-1 rounded-full text-sm font-semibold">
                         {event.year}
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-bold text-white mb-3">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
                       {event.title}
                     </h3>
 
-                    <p className="text-indigo-200 mb-4">{event.description}</p>
+                    <p className="text-gray-700 mb-4">{event.description}</p>
 
-                    <div className="inline-flex items-center text-indigo-300 hover:text-indigo-100 transition-colors">
+                    <div className="inline-flex items-center text-marx-red hover:text-marx-red-hover transition-colors">
                       <span className="mr-2">Xem Chi Tiết</span>
                       <svg
                         className="w-4 h-4"
@@ -94,10 +90,8 @@ export default function TimelinePage() {
                   </button>
                 </div>
 
-                {/* Điểm tròn giữa */}
-                <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full border-4 border-slate-900 z-10 shadow-lg" />
+                <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 bg-gradient-to-r from-marx-red to-lenin-yellow rounded-full border-4 border-white z-10 shadow-lg" />
 
-                {/* Khoảng trống bên kia */}
                 <div className="w-5/12" />
               </div>
             ))}
@@ -105,7 +99,6 @@ export default function TimelinePage() {
         </div>
       </div>
 
-      {/* Modal chi tiết */}
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}

@@ -4,7 +4,7 @@ import { HeroHeader } from './header';
 
 export default function Layout() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen ">
       {/* Header luôn hiện ở trên cùng */}
       <HeroHeader />
       

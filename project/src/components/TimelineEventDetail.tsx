@@ -8,7 +8,7 @@ export default function TimelineEventDetail({ event }: Props) {
   const d = event.detailContent;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mg-t-10">
       <div className="flex items-start space-x-4">
         <img src={event.image} alt={event.title} className="w-28 h-20 object-cover rounded-md" />
         <div>
