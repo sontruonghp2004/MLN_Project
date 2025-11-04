@@ -50,7 +50,7 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
         {/* Header */}
         <div className="relative z-10 flex items-center justify-between p-6 border-b bg-white/95 backdrop-blur-sm">
           {title && (
-            <h2 className="text-xl md:text-2xl font-semibold text-balance bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent animate-title-glow">
+            <h2 className="text-xl md:text-2xl font-semibold text-balance bg-gradient-to-r from-primary to-blue-600 bg-clip-text  animate-title-glow">
               {title}
             </h2>
           )}
